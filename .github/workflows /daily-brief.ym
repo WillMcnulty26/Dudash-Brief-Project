@@ -1,0 +1,35 @@
+name: Daily CEO Brief
+
+on:
+  schedule:
+    # 45 10 * * 1-5 = 10:45 UTC, Mon-Fri = 5:45 AM Central during
+    # Daylight Time (roughly mid-March to early November).
+    # Switch to '45 11 * * 1-5' during Standard Time (early November
+    # to mid-March), or maintain both and disable/enable by season.
+    # See setup document for why this matters and how to handle it.
+    - cron: '45 10 * * 1-5'
+  workflow_dispatch: {}   # lets us trigger a manual test run from the GitHub UI
+
+jobs:
+  run-brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily brief
+        run: python dudash_brief.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
